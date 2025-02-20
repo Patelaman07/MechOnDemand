@@ -3,33 +3,43 @@ import mongoose,{Schema} from "mongoose";
 
 const userSchema = new Schema(
     {
-        username:{
+        name:{
             type:String,
             required:true,
-            unique:true,
-            lowercase:true,
-            trim:true,
             index:true
         },
         email:{
             type:String,
             required:true,
             unique:true,
-            lowercase:true,
-            trim:true,
         },
-        fullname:{
+        password:{
             type:String,
+            required:[true,'Password is required']
+        },
+        phone:{
+            type:Number,
             required:true,
-            trim:true,
-            index:true
+            unique:true
+        },
+        role:{ 
+            type: String, 
+            enum: ["customer", "mechanic", "admin"], 
+            default: "customer" 
+        },
+        address: {
+            street: String,
+            city: String,
+            state: String,
+            zip: String
         },
         avatar:{
             type:String,
             required:true
         },
-        coverImage:{
-            typeof:String,
+        ratings: { 
+            type: Number, 
+            default: 0 
         },
         orderHistory:[
             {
@@ -37,27 +47,16 @@ const userSchema = new Schema(
                 ref:"Mechanic"
             }
         ],
-        password:{
-            type:String,
-            required:[true,'Password is required']
-        },
         refreshToken:{
             type:String
         },
-        address:{
-            type:String,
-            required:true
-        },
-        phoneNumber:{
-            type:Number,
-            required:true
-        },
-        pincode:{
-            type:Number,
-            required:true
-        }
-
-
+        reviews: [
+            { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: "Review" 
+            }
+        ],
+        
     },{
         timestamps:true
     }

@@ -2,7 +2,7 @@ import mongoose ,{Schema} from "mongoose";
 
 const mechanicSchema = new Schema(
     {
-        fullname:{
+        name:{
             type:String,
             required:true,
             index:true,
@@ -18,28 +18,61 @@ const mechanicSchema = new Schema(
             unique:true,
             trim:true
         },
-        phoneNumber:{
+        phone:{
             type:Number,
             required:true
         },
-        address:{
-            type:String,
-            required:true
+        address: {
+            street: String,
+            city: String,
+            state: String,
+            zip: String
         },
-        pincode:{
-            type:Number,
-            required:true
+        userId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User", 
+            required: true 
         },
-        certificate:{
-            type:String, // cloudnery url
-            required:true,
-        },
-        specialities:[
-            {
-                type:String,
-                required:true
+        skills: [
+            { 
+                type: String, 
+                required: true 
             }
-        ]
+        ],
+        experience: { 
+            type: String, 
+            required: true 
+        },
+        availability: { 
+            type: Boolean, 
+            default: true 
+        },
+        location: {
+            latitude: { type: Number, required: true },
+            longitude: { type: Number, required: true }
+        },
+        serviceCategories: [
+            { 
+                type: String, 
+                enum: ["Vehicle Repair", "Electronics Repair", "Electrical Work"] 
+            }
+        ],
+        pricing: { 
+            type: Map, 
+            of: Number 
+        },
+        earnings: { 
+            type: Number, 
+            default: 0 
+        },
+        verified: { 
+            type: Boolean, 
+            default: false 
+        },
+        profileImage: { 
+            type: String, 
+           required:true
+        },
     },{
         timestamps:true
     }

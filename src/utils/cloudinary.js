@@ -16,9 +16,11 @@ const uploadOnCloudinery = async(locatFilePath)=>{
             resource_type:"auto"
         })
         console.log("file uploaded successfully",response.url)
-        return response
+        return response.url
     } catch (error) {
         fs.unlinkSync(locatFilePath)
         return null
     }
 }
+
+export {uploadOnCloudinery}
