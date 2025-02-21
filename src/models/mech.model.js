@@ -28,11 +28,11 @@ const mechanicSchema = new Schema(
             state: String,
             zip: String
         },
-        userId: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "User", 
+        // userId: { 
+        //     type: mongoose.Schema.Types.ObjectId, 
+        //     ref: "User", 
             
-        },
+        // },
         skills: [
             { 
                 type: String,

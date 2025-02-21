@@ -11,11 +11,11 @@ const bookingSchema = new Schema({
         ref:"Mechanic",
         required:true
     },
-    serviceId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Service",
-        required:true
-    },
+    // serviceId:{
+    //     type:mongoose.Schema.Types.ObjectId,
+    //     ref:"Service",
+    //     required:true
+    // },
     category:{
         type:String,
         required:true
@@ -36,7 +36,7 @@ const bookingSchema = new Schema({
     },
     completedTime: { 
         type: Date,
-        required:true 
+        
     },
     price: { 
         type: Number, 

@@ -37,25 +37,25 @@ const userSchema = new Schema(
             type:String,
             required:true
         },
-        ratings: { 
-            type: Number, 
-            default: 0 
-        },
-        orderHistory:[
-            {
-                type: Schema.Types.ObjectId,
-                ref:"Mechanic"
-            }
-        ],
+        // ratings: { 
+        //     type: Number, 
+        //     default: 0 
+        // },
+        // bookingHistory:[
+        //     {
+        //         type: Schema.Types.ObjectId,
+        //         ref:"Mechanic"
+        //     }
+        // ],
         refreshToken:{
             type:String
         },
-        reviews: [
-            { 
-                type: mongoose.Schema.Types.ObjectId, 
-                ref: "Review" 
-            }
-        ],
+        // reviews: [
+        //     { 
+        //         type: mongoose.Schema.Types.ObjectId, 
+        //         ref: "Review" 
+        //     }
+        // ],
         otp:{
             type:String,
             default:""
