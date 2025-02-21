@@ -31,25 +31,22 @@ const mechanicSchema = new Schema(
         userId: { 
             type: mongoose.Schema.Types.ObjectId, 
             ref: "User", 
-            required: true 
+            
         },
         skills: [
             { 
-                type: String, 
-                required: true 
+                type: String,
+                default:'' 
+                
             }
         ],
         experience: { 
             type: String, 
-            required: true 
+            default:'' 
         },
         availability: { 
             type: Boolean, 
             default: true 
-        },
-        location: {
-            latitude: { type: Number, required: true },
-            longitude: { type: Number, required: true }
         },
         serviceCategories: [
             { 
@@ -69,10 +66,19 @@ const mechanicSchema = new Schema(
             type: Boolean, 
             default: false 
         },
-        profileImage: { 
+        avatar: { 
             type: String, 
-           required:true
+            required:true
         },
+        otp:{
+            type:String,
+            default:""
+        },
+        otpExpireAt:{
+            type:Number,
+            default:0
+        }
+        
     },{
         timestamps:true
     }

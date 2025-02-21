@@ -24,6 +24,7 @@ const adminSchema = new Schema({
     mostPopularServices: [{ 
         type: String 
     }]
+    
 },{
     timestamps:true
 })

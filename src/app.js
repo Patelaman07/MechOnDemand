@@ -16,7 +16,9 @@ app.use(express.static("public"))
 app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js"
+import mechRouter from "./routes/mech.routes.js"
 
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/mech",mechRouter)
 
 export default app

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/user.controller.js";
+import { login, logout, registerUser, resetPassword, sendresetOtp } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const userRouter = Router()
@@ -13,6 +13,15 @@ userRouter.route("/register").post(
         }
     ]
     ),
-    registerUser);
+    registerUser
+);
+
+userRouter.route("/login").post(login);
+
+userRouter.route("/logout").post(logout);
+
+userRouter.route("/reset-otp").post(sendresetOtp);
+
+userRouter.route("/reset-password").post(resetPassword);
 
 export default userRouter;

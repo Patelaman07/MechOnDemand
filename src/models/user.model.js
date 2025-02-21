@@ -56,6 +56,14 @@ const userSchema = new Schema(
                 ref: "Review" 
             }
         ],
+        otp:{
+            type:String,
+            default:""
+        },
+        otpExpireAt:{
+            type:Number,
+            default:0
+        }
         
     },{
         timestamps:true

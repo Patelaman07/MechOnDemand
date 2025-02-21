@@ -1,44 +1,46 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
+import { Mechanic } from "../models/mech.model.js";
 import transporter from "../utils/nodemailer.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
+export const mechRegister = async (req,res) => {
 
-export const registerUser = async (req, res) => {
-    const { name, email, password, phone, role } = req.body;
+    const {name, password, email, phone} = req.body;
 
-    if (!name || !email || !password || !phone) {
-        return res.status(400).json({ success: false, message: "Missing Details" })
+    if(!name || !password || !email || !phone ){
+        return res.status(400).json({success:false, message:"Missing Details"})
     }
+
     const avatarLocalPath = req.files?.avatar[0].path;
 
     if (!avatarLocalPath) {
-        return res.status(400).json({ success: false, message: "Avatar is required" })
+        return res.status(400).json({ success: false, message: "Profile image is required" })
     }
 
     try {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.json({ success: false, message: "User is allready exist of this email" })
+        const existMechanic = await Mechanic.findOne({email});
+
+        if(existMechanic){
+            return res.json({success:false,  message:"Mechanic is allready exist with this email"})
         }
 
-        // hashing the passwords
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        
         const avatar = await uploadOnCloudinary(avatarLocalPath);
 
         if (!avatar) {
             return res.status(400).json({ success: false, message: "Avatar is not uploaded on Cloudinary" })
         }
 
+        const newMechanic = new Mechanic({ name,  password:hashedPassword, email, phone, avatar: avatar.url });
 
-        const user = new User({ name, email, password: hashedPassword, phone, role, avatar: avatar.url });
-        await user.save();
+        await newMechanic.save();
 
+        
         // generate the token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
+        const token = jwt.sign({ id: newMechanic._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        
         //send the generated token to the cookies
         res.cookie('token', token, {
             httpOnly: true,
@@ -56,12 +58,13 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOption);
 
-        return res.status(201).json({ success: true, message: "User Registerd Successfully", token })
+        return res.status(201).json({ success: true, message: "Mechanic Registerd Successfully", token })
 
     } catch (error) {
-        res.status(401).json({ success: false, message: error.message })
+        return res.json({success:false,message:error.message})
     }
-}
+
+};
 
 export const login = async (req,res) => {
     const {email,password} = req.body;
@@ -69,18 +72,18 @@ export const login = async (req,res) => {
         return res.status(400).json({success:false, message:"Missing Details"})
     }
     try {
-        const user = await User.findOne({email});
-        if(!user){
+        const existMech = await Mechanic.findOne({email});
+        if(!existMech){
             return res.status(400).json({success:false,message:"Invalid Email"})
         }
 
-        const IsMatch = await bcrypt.compare(password,user.password);
+        const IsMatch = await bcrypt.compare(password,existMech.password);
 
         if(!IsMatch){
             return res.status(400).json({success:false,message:"Invalid Password"})
         }
         
-        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'7d'});
+        const token = jwt.sign({id:existMech._id},process.env.JWT_SECRET,{expiresIn:'7d'});
 
         res.cookie('token',token,{
             httpOnly:true,
@@ -94,7 +97,7 @@ export const login = async (req,res) => {
     } catch (error) {
         return res.status(400).json({success:false,message:error.message})
     }
-}
+};
 
 export const logout = async (req, res) => {
     try {
@@ -116,7 +119,7 @@ export const sendresetOtp = async(req,res)=>{
         return res.json({success:false, message:"Missing Details"});
     }
     try {
-        const user = await User.findOne({email});
+        const user = await Mechanic.findOne({email});
         if(!user){
             return res.json({success:false,message:"Account does not Exist with this Email"});
         }
@@ -150,7 +153,7 @@ export const resetPassword = async(req,res)=>{
         return res.json({success:false,message:"Missing Details"});
     }
     try {
-        const user = await User.findOne({email});
+        const user = await Mechanic.findOne({email});
         if(!user){
             return res.json({success:false,message:"User Not Found"});
         }
