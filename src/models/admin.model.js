@@ -15,7 +15,8 @@ const adminSchema = new Schema({
         default: 0 
     },
     totalEarnings: { 
-        type: Number, default: 0 
+        type: Number, 
+        default: 0 
     },
     totalBookings: { 
         type: Number, 

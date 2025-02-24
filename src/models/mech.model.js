@@ -22,12 +22,22 @@ const mechanicSchema = new Schema(
             type:Number,
             required:true
         },
-        address: {
+        address:{
             street: String,
             city: String,
             state: String,
             zip: String
         },
+        avarageRating:{
+            type:Number,
+            default:0
+        },
+        reviews: [
+            { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: "Rating" 
+            }
+        ],
         // userId: { 
         //     type: mongoose.Schema.Types.ObjectId, 
         //     ref: "User", 
@@ -38,6 +48,12 @@ const mechanicSchema = new Schema(
                 type: String,
                 default:'' 
                 
+            }
+        ],
+        mechanicBookingHistory:[
+            {
+                type: Schema.Types.ObjectId,
+                ref:"Booking"
             }
         ],
         experience: { 

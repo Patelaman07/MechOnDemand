@@ -8,7 +8,7 @@ export const creatBooking = async (req, res) => {
     const { userId, mechanicId,  category, deviceDetails, scheduledTime, price, paymentMethod } = req.body;
 
     if (!userId || !mechanicId || !category || !deviceDetails || !scheduledTime || !price || !paymentMethod) {
-        return res.json({ success: false, message: "Missing Details" })
+        return res.status(400).json({ success: false, message: "Missing Details" })
     }
 
     try {
@@ -35,6 +35,17 @@ export const creatBooking = async (req, res) => {
         });
 
         await newBooking.save();
+
+        user.userBookingHistory = userBookingHistory || [];
+        user.userBookingHistory.push(newBooking);
+
+        await user.save();
+
+        mechanic.mechanicBookingHistory = mechanicBookingHistory ||[];
+        
+        mechanic.mechanicBookingHistory.push(newBooking);
+        await mechanic.save();
+
         return res.status(201).json({
             success: true,
             message: "Booking is created successfully"
@@ -45,7 +56,7 @@ export const creatBooking = async (req, res) => {
 
 };
 
-// get all bookings
+// get all bookings for admin
 export const getAllBookings = async (req, res) => {
     try {
         const bookings = await Booking.find().populate("userId mechanicId");
@@ -57,9 +68,51 @@ export const getAllBookings = async (req, res) => {
 
 };
 
+//Get all booking for a user
+// export const getBookingsByUserId = async (req, res) => {
+//     const {userId} = req.params;
+//     if(!userId){
+//         return res.status(400).json({success:false,message:"Missing Details"})
+//     }
+//     try {
+       
+//         const bookings = await Booking.find({userId}).populate("mechanicId");
+
+//         if (!bookings) return res.status(404).json({ success: false, message: "Booking not found for this userId" });
+
+
+//         return res.status(200).json({ success: true, message: "Booking get successfully", bookings });
+
+//     } catch (error) {
+
+//         return res.status(500).json({ success: false, message: error.message });
+//     }
+// };
+//Get all booking for a Mechanic
+// export const getBookingsBymechanicId = async (req, res) => {
+//     const {mechanicId} = req.params;
+
+//     if(!mechanicId){
+//         return res.status(400).json({success:false,message:"Missing Details"})
+//     }
+//     try {
+        
+//         const bookings = await Booking.find({mechanicId}).populate("userId");
+
+//         if (!bookings) return res.status(404).json({ success: false, message: "Booking not found for this mechanic" });
+
+
+//         return res.status(200).json({ success: true, message: "Bookings get successfully", bookings });
+
+//     } catch (error) {
+
+//         return res.status(500).json({ success: false, message: error.message });
+//     }
+// };
+
 // Get Booking by ID
 export const getBookingById = async (req, res) => {
-    const {bookingId} = req.body;
+    const {bookingId} = req.params;
     if(!bookingId){
         return res.status(400).json({success:false,message:"Missing Details"})
     }
@@ -79,14 +132,15 @@ export const getBookingById = async (req, res) => {
 
 export const updateBookingStatus = async (req, res) => {
 
-    const {bookingId, status, paymentStatus,completedTime  } = req.body;
+    const { status, paymentStatus,completedTime  } = req.body;
 
-    if (!bookingId||!status || !paymentStatus ) {
+    if (!status || !paymentStatus ) {
         return res.status(400).json({ success: false, message: "Missing Details" })
     }
    
 
     try {
+        const {bookingId} = req.params;
 
         const booking = await Booking.findById(bookingId);
 
@@ -112,7 +166,7 @@ export const updateBookingStatus = async (req, res) => {
 
 export const deleteBooking = async (req, res) => {
 
-    const {bookingId} = req.body;
+    const {bookingId} = req.params;
     if(!bookingId){
         return res.status(400).json({success:false,message:"Missing Details"})
     }

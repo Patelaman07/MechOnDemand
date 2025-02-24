@@ -22,11 +22,7 @@ const userSchema = new Schema(
             required:true,
             unique:true
         },
-        role:{ 
-            type: String, 
-            enum: ["customer", "mechanic", "admin"], 
-            default: "customer" 
-        },
+       
         address: {
             street: String,
             city: String,
@@ -37,25 +33,16 @@ const userSchema = new Schema(
             type:String,
             required:true
         },
-        // ratings: { 
-        //     type: Number, 
-        //     default: 0 
-        // },
-        // bookingHistory:[
-        //     {
-        //         type: Schema.Types.ObjectId,
-        //         ref:"Mechanic"
-        //     }
-        // ],
+       
+        userBookingHistory:[
+            {
+                type: Schema.Types.ObjectId,
+                ref:"Booking"
+            }
+        ],
         refreshToken:{
             type:String
         },
-        // reviews: [
-        //     { 
-        //         type: mongoose.Schema.Types.ObjectId, 
-        //         ref: "Review" 
-        //     }
-        // ],
         otp:{
             type:String,
             default:""

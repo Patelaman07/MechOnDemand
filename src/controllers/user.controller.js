@@ -8,7 +8,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 export const registerUser = async (req, res) => {
     const { name, email, password, phone, role } = req.body;
 
-    if (!name || !email || !password || !phone) {
+    if (!name || !email || !password || !phone || !role) {
         return res.status(400).json({ success: false, message: "Missing Details" })
     }
     const avatarLocalPath = req.files?.avatar[0].path;
