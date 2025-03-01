@@ -6,19 +6,15 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 export const registerUser = async (req, res) => {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password} = req.body;
 
-    if (!name || !email || !password || !phone || !role) {
+    if (!name || !email || !password ) {
         return res.status(400).json({ success: false, message: "Missing Details" })
     }
-    const avatarLocalPath = req.files?.avatar[0].path;
-
-    if (!avatarLocalPath) {
-        return res.status(400).json({ success: false, message: "Avatar is required" })
-    }
-
+    
     try {
         const existingUser = await User.findOne({ email });
+
         if (existingUser) {
             return res.json({ success: false, message: "User is allready exist of this email" })
         }
@@ -26,18 +22,14 @@ export const registerUser = async (req, res) => {
         // hashing the passwords
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-        if (!avatar) {
-            return res.status(400).json({ success: false, message: "Avatar is not uploaded on Cloudinary" })
-        }
-
-
-        const user = new User({ name, email, password: hashedPassword, phone, role, avatar: avatar.url });
+        const user = new User({ name, email, password: hashedPassword});
         await user.save();
 
+        const userId = user._id;
+
         // generate the token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         //send the generated token to the cookies
         res.cookie('token', token, {
@@ -56,10 +48,10 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOption);
 
-        return res.status(201).json({ success: true, message: "User Registerd Successfully", token })
+        return res.status(201).json({ success: true, message: "User Registerd Successfully", userId })
 
     } catch (error) {
-        res.status(401).json({ success: false, message: error.message })
+        res.status(501).json({ success: false, message: error.message })
     }
 }
 
@@ -79,8 +71,8 @@ export const login = async (req,res) => {
         if(!IsMatch){
             return res.status(400).json({success:false,message:"Invalid Password"})
         }
-        
-        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'7d'});
+        const userId = user._id;
+        const token = jwt.sign({id:userId},process.env.JWT_SECRET,{expiresIn:'7d'});
 
         res.cookie('token',token,{
             httpOnly:true,
@@ -89,10 +81,10 @@ export const login = async (req,res) => {
             maxAge: 7*24*60*60*1000
         })
 
-        return res.status(201).json({success:true, message:"You are Logged IN"})
+        return res.status(201).json({success:true, message:"You are Logged IN" , userId})
 
     } catch (error) {
-        return res.status(400).json({success:false,message:error.message})
+        return res.status(500).json({success:false,message:error.message})
     }
 }
 
@@ -175,5 +167,46 @@ export const resetPassword = async(req,res)=>{
 
     } catch (error) {
         return res.json({success:false,message:error.message});
+    }
+};
+
+
+
+export const updateUserData = async (req, res) => {
+    try {
+        const { address, phone, role } = req.body;
+        const { id } = req.params;
+
+        // Find user by ID
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        let avatarUrl = user.avatar; // Keep existing avatar if no new one is provided
+
+        // Handle avatar upload if provided
+        if (req.files?.avatar?.[0]?.path) {
+            const avatarLocalPath = req.files.avatar[0].path;
+            const uploadedAvatar = await uploadOnCloudinary(avatarLocalPath);
+            
+            if (!uploadedAvatar) {
+                return res.status(400).json({ success: false, message: "Avatar upload failed" });
+            }
+            avatarUrl = uploadedAvatar.url;
+        }
+
+        // Update user fields
+        user.address = address || user.address;
+        user.phone = phone || user.phone;
+        user.role = role || user.role;
+        user.avatar = avatarUrl;
+
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "User updated successfully", user });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -19,7 +19,7 @@ const userSchema = new Schema(
         },
         phone:{
             type:Number,
-            required:true,
+            default:0,
             unique:true
         },
        
@@ -31,7 +31,8 @@ const userSchema = new Schema(
         },
         avatar:{
             type:String,
-            required:true
+            default:""
+            
         },
        
         userBookingHistory:[
@@ -40,6 +41,10 @@ const userSchema = new Schema(
                 ref:"Booking"
             }
         ],
+        role:{
+            type:String,
+            default:""
+        },
         refreshToken:{
             type:String
         },

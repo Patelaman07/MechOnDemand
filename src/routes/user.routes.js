@@ -1,21 +1,22 @@
 import { Router } from "express";
-import { login, logout, registerUser, resetPassword, sendresetOtp } from "../controllers/user.controller.js";
+import { login, logout, registerUser, resetPassword, sendresetOtp, updateUserData } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const userRouter = Router()
 
-userRouter.route("/register").post(
-    upload.fields(
-    [  
-        {
-            name: "avatar",
-            maxCount: 1
-        }
-    ]
-    ),
-    registerUser
-);
+userRouter.route("/register").post(registerUser);
 
+userRouter.route("/:id").post(
+    upload.fields(
+        [
+            {
+                name: "avatar",
+                maxCount: 1
+            }
+        ]
+    ),
+    updateUserData
+)
 userRouter.route("/login").post(login);
 
 userRouter.route("/logout").post(logout);
