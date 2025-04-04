@@ -3,6 +3,10 @@ import mongoose,{Schema} from "mongoose";
 
 const userSchema = new Schema(
     {
+        fullName:{
+            type:String,
+            default:""
+        },
         name:{
             type:String,
             required:true,
@@ -22,13 +26,18 @@ const userSchema = new Schema(
             default:0,
             unique:true
         },
-       
-        address: {
-            street: String,
-            city: String,
-            state: String,
-            zip: String
+        role:{
+            type:String,
+            default:"user"
         },
+        address: [
+            {
+                street: String,
+                city: String,
+                state: String,
+                zip: String
+            }
+        ],
         avatar:{
             type:String,
             default:""
@@ -41,10 +50,6 @@ const userSchema = new Schema(
                 ref:"Booking"
             }
         ],
-        role:{
-            type:String,
-            default:""
-        },
         refreshToken:{
             type:String
         },

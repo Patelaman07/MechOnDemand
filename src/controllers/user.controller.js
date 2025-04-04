@@ -3,16 +3,18 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 import transporter from "../utils/nodemailer.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import mongoose from "mongoose";
 
 
 export const registerUser = async (req, res) => {
-    const { name, email, password} = req.body;
 
-    if (!name || !email || !password ) {
-        return res.status(400).json({ success: false, message: "Missing Details" })
-    }
-    
+
     try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: "Missing Details" })
+        }
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -23,13 +25,13 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
 
-        const user = new User({ name, email, password: hashedPassword});
+        const user = new User({ name, email, password: hashedPassword });
         await user.save();
 
-        const userId = user._id;
+        
 
         // generate the token
-        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign( { id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         //send the generated token to the cookies
         res.cookie('token', token, {
@@ -48,45 +50,64 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOption);
 
-        return res.status(201).json({ success: true, message: "User Registerd Successfully", userId })
+        return res.status(201).json({ success: true, message: "User Registerd Successfully",token})
 
     } catch (error) {
         res.status(501).json({ success: false, message: error.message })
     }
 }
 
-export const login = async (req,res) => {
-    const {email,password} = req.body;
-    if(!email || !password){
-        return res.status(400).json({success:false, message:"Missing Details"})
-    }
+export const login = async (req, res) => {
     try {
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({success:false,message:"Invalid Email"})
+        const { email, password } = req.body;
+
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "Email and password are required." });
         }
 
-        const IsMatch = await bcrypt.compare(password,user.password);
-
-        if(!IsMatch){
-            return res.status(400).json({success:false,message:"Invalid Password"})
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ success: false, message: "Invalid email or password." });
         }
-        const userId = user._id;
-        const token = jwt.sign({id:userId},process.env.JWT_SECRET,{expiresIn:'7d'});
 
-        res.cookie('token',token,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV === 'production',
-            sameSite:process.env.NODE_ENV === 'production'? 'none':'strict',
-            maxAge: 7*24*60*60*1000
-        })
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Invalid email or password." });
+        }
 
-        return res.status(201).json({success:true, message:"You are Logged IN" , userId})
+       
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user._id.toString() },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Set cookie with token
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // Respond with success
+        return res.status(200).json({
+            success: true,
+            message: "You are logged in.",
+            token
+        });
 
     } catch (error) {
-        return res.status(500).json({success:false,message:error.message})
+        console.error("Login Error:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error"  });
     }
-}
+
+};
 
 export const logout = async (req, res) => {
     try {
@@ -102,21 +123,21 @@ export const logout = async (req, res) => {
     }
 };
 
-export const sendresetOtp = async(req,res)=>{
-    const {email} = req.body;
-    if(!email){
-        return res.json({success:false, message:"Missing Details"});
+export const sendresetOtp = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.json({ success: false, message: "Missing Details" });
     }
     try {
-        const user = await User.findOne({email});
-        if(!user){
-            return res.json({success:false,message:"Account does not Exist with this Email"});
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "Account does not Exist with this Email" });
         }
         const otp = String(Math.floor(1000 + Math.random() * 9000));
 
         user.otp = otp;
 
-        user.otpExpireAt = Date.now() + 15* 60 * 1000;
+        user.otpExpireAt = Date.now() + 15 * 60 * 1000;
 
         await user.save();
 
@@ -129,33 +150,33 @@ export const sendresetOtp = async(req,res)=>{
 
         await transporter.sendMail(mailOption);
 
-        return res.json({success:true,message:"Reset OTP is sent to Your mail"});
+        return res.json({ success: true, message: "Reset OTP is sent to Your mail" });
 
     } catch (error) {
-        return res.json({success:false,message:error.message});
+        return res.json({ success: false, message: error.message });
     }
 };
 
-export const resetPassword = async(req,res)=>{
-    const {email,otp,newPassword} = req.body;
-    if(!email||!otp||!newPassword){
-        return res.json({success:false,message:"Missing Details"});
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+        return res.json({ success: false, message: "Missing Details" });
     }
     try {
-        const user = await User.findOne({email});
-        if(!user){
-            return res.json({success:false,message:"User Not Found"});
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "User Not Found" });
         }
 
-        if(user.otp === '' || user.otp !== otp){
-            return res.json({success:false,message:"Invalid OTP"});
+        if (user.otp === '' || user.otp !== otp) {
+            return res.json({ success: false, message: "Invalid OTP" });
         }
 
-        if(user.otpExpireAt < Date.now()){
-            return res.json({success:false,message:"OTP Expired"});
+        if (user.otpExpireAt < Date.now()) {
+            return res.json({ success: false, message: "OTP Expired" });
         }
 
-        const hashedNewPassword = await bcrypt.hash(newPassword,10);
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
         user.password = hashedNewPassword;
         user.otp = '';
@@ -163,10 +184,10 @@ export const resetPassword = async(req,res)=>{
 
         await user.save();
 
-        return res.json({success:true,message:"Your Password is Reset Succesfully"});
+        return res.json({ success: true, message: "Your Password is Reset Succesfully" });
 
     } catch (error) {
-        return res.json({success:false,message:error.message});
+        return res.json({ success: false, message: error.message });
     }
 };
 
@@ -174,11 +195,12 @@ export const resetPassword = async(req,res)=>{
 
 export const updateUserData = async (req, res) => {
     try {
-        const { address, phone, role } = req.body;
-        const { id } = req.params;
+        const {fullName,email,role, phone,address,userId } = req.body;
+        
+        
 
         // Find user by ID
-        const user = await User.findById(id);
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
@@ -189,7 +211,7 @@ export const updateUserData = async (req, res) => {
         if (req.files?.avatar?.[0]?.path) {
             const avatarLocalPath = req.files.avatar[0].path;
             const uploadedAvatar = await uploadOnCloudinary(avatarLocalPath);
-            
+
             if (!uploadedAvatar) {
                 return res.status(400).json({ success: false, message: "Avatar upload failed" });
             }
@@ -197,10 +219,18 @@ export const updateUserData = async (req, res) => {
         }
 
         // Update user fields
-        user.address = address || user.address;
+        user.fullName = fullName || user.fullName;
         user.phone = phone || user.phone;
-        user.role = role || user.role;
         user.avatar = avatarUrl;
+        user.email = email || user.email;
+      
+        user.role = role || user.role;
+
+        if (Array.isArray(address) && address.length > 0) {
+            
+            // Agar aap existing address me append karna chahte ho to yeh use karo:
+            user.address.push(...address);
+        }
 
         await user.save();
 
@@ -210,3 +240,40 @@ export const updateUserData = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const getUserAddressArray = async(req,res)=>{
+    const {userId} = req.body;
+    try {
+        
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const {
+            address: addresses = [],
+            fullName: name = '',
+            phone: mobile = '',
+            email = '',
+            avatar: avatarUrl = ''
+        } = user || {};
+        
+        // Return a well-structured JSON response
+        return res.status(200).json({
+            success: true,
+            message: "Fetched user data successfully",
+            data: {
+                name,
+                mobile,
+                email,
+                avatarUrl,
+                addresses
+            }
+        });
+
+    } catch (error) {
+         return res.status(500).json({ success: false, message: error.message });
+    }
+
+    
+}

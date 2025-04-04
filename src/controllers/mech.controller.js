@@ -6,16 +6,10 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const mechRegister = async (req,res) => {
 
-    const {name, password, email, phone} = req.body;
+    const {name, password, email} = req.body;
 
-    if(!name || !password || !email || !phone ){
+    if(!name || !password || !email ){
         return res.status(400).json({success:false, message:"Missing Details"})
-    }
-
-    const avatarLocalPath = req.files?.avatar[0].path;
-
-    if (!avatarLocalPath) {
-        return res.status(400).json({ success: false, message: "Profile image is required" })
     }
 
     try {
@@ -27,13 +21,10 @@ export const mechRegister = async (req,res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        const avatar = await uploadOnCloudinary(avatarLocalPath);
+       
 
-        if (!avatar) {
-            return res.status(400).json({ success: false, message: "Avatar is not uploaded on Cloudinary" })
-        }
-
-        const newMechanic = new Mechanic({ name,  password:hashedPassword, email, phone, avatar: avatar.url });
+        
+        const newMechanic = new Mechanic({ name,  password:hashedPassword, email });
 
         await newMechanic.save();
 
@@ -178,5 +169,44 @@ export const resetPassword = async(req,res)=>{
 
     } catch (error) {
         return res.json({success:false,message:error.message});
+    }
+};
+
+
+export const updateMechanicData = async (req, res) => {
+    try {
+        const { address, phone } = req.body;
+        const { id } = req.params;
+
+        // Find user by ID
+        const mechanic = await Mechanic.findById(id);
+        if (!mechanic) {
+            return res.status(404).json({ success: false, message: "mechanic not found" });
+        }
+
+        let avatarUrl = mechanic.avatar; // Keep existing avatar if no new one is provided
+
+        // Handle avatar upload if provided
+        if (req.files?.avatar?.[0]?.path) {
+            const avatarLocalPath = req.files.avatar[0].path;
+            const uploadedAvatar = await uploadOnCloudinary(avatarLocalPath);
+            
+            if (!uploadedAvatar) {
+                return res.status(400).json({ success: false, message: "Avatar upload failed" });
+            }
+            avatarUrl = uploadedAvatar.url;
+        }
+
+        // Update user fields
+        mechanic.address = address || user.address;
+        mechanic.phone = phone || user.phone;
+        mechanic.avatar = avatarUrl;
+
+        await Mechanic.save();
+
+        return res.status(200).json({ success: true, message: "Mechanic updated successfully", user });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
     }
 };

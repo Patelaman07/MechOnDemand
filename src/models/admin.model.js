@@ -6,6 +6,9 @@ const adminSchema = new Schema({
         ref: "User", 
         required: true 
     },
+    role:{
+        
+    },
     totalUsers: { 
         type: Number, 
         default: 0 

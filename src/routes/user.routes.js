@@ -1,12 +1,22 @@
 import { Router } from "express";
-import { login, logout, registerUser, resetPassword, sendresetOtp, updateUserData } from "../controllers/user.controller.js";
+import { getUserAddressArray, login, logout, registerUser, resetPassword, sendresetOtp, updateUserData } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import userAuth from "../middlewares/userAuth.middleware.js";
 
 const userRouter = Router()
 
 userRouter.route("/register").post(registerUser);
 
-userRouter.route("/:id").post(
+
+userRouter.route("/login").post(login);
+
+userRouter.route("/logout").post(logout);
+
+userRouter.route("/reset-otp").post(sendresetOtp);
+
+userRouter.route("/reset-password").post(resetPassword);
+
+userRouter.route("/update-user-data").post(
     upload.fields(
         [
             {
@@ -15,14 +25,10 @@ userRouter.route("/:id").post(
             }
         ]
     ),
+    userAuth,
     updateUserData
-)
-userRouter.route("/login").post(login);
+);
 
-userRouter.route("/logout").post(logout);
-
-userRouter.route("/reset-otp").post(sendresetOtp);
-
-userRouter.route("/reset-password").post(resetPassword);
+userRouter.route("/user-data").get(userAuth,getUserAddressArray);
 
 export default userRouter;

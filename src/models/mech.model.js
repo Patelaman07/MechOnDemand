@@ -20,7 +20,7 @@ const mechanicSchema = new Schema(
         },
         phone:{
             type:Number,
-            required:true
+            
         },
         address:{
             street: String,
@@ -38,11 +38,11 @@ const mechanicSchema = new Schema(
                 ref: "Rating" 
             }
         ],
-        // userId: { 
-        //     type: mongoose.Schema.Types.ObjectId, 
-        //     ref: "User", 
+        userId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User", 
             
-        // },
+        },
         skills: [
             { 
                 type: String,
@@ -84,7 +84,7 @@ const mechanicSchema = new Schema(
         },
         avatar: { 
             type: String, 
-            required:true
+            default:""
         },
         otp:{
             type:String,

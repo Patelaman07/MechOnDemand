@@ -1,20 +1,22 @@
 import { Router } from "express";
-import { login, logout, mechRegister, resetPassword, sendresetOtp } from "../controllers/mech.controller.js";
+import { login, logout, mechRegister, resetPassword, sendresetOtp,updateMechanicData } from "../controllers/mech.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 
 const mechRouter = Router();
 
-mechRouter.route("/register").post(
-    upload.fields(
-    [  
-        {
-            name:"avatar",
-            maxCount: 1
-        }
-    ]),
+mechRouter.route("/register").post(mechRegister);
 
-    mechRegister
+mechRouter.route("/:id").post(
+    upload.fields(
+        [
+            {
+                name: "avatar",
+                maxCount: 1
+            }
+        ]
+    ),
+    updateMechanicData
 );
 
 mechRouter.route("/login").post(login);
