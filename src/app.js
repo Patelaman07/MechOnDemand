@@ -20,9 +20,16 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js"
 import mechRouter from "./routes/mech.routes.js"
 import bookinRouter from "./routes/booking.routes.js"
+import adminRoutes from "./routes/admin.routes.js";
 
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/mech",mechRouter)
-app.use("/api/v1/booking",bookinRouter)
 
-export default app
+app.use("/api/v1/admin", adminRoutes);
+
+app.use("/api/v1/mech",mechRouter);
+
+app.use("/api/v1/booking",bookinRouter);
+
+
+
+export default app;

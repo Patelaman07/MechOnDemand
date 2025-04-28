@@ -1,9 +1,9 @@
 import { Router } from "express";
-import {creatBooking, deleteBooking, getAllBookings,getBookingById, updateBookingStatus } from "../controllers/booking.controller.js"
-
+import {createBooking, deleteBooking, getAllBookings,getBookingById, updateBookingStatus } from "../controllers/booking.controller.js"
+import userAuth from "../middlewares/userAuth.middleware.js";
 const bookinRouter = Router();
 
-bookinRouter.route("/create-booking").post(creatBooking);
+bookinRouter.route("/create-booking/:id").post(userAuth,createBooking);
 
 bookinRouter.route("/get-bookings").get(getAllBookings);
 // bookinRouter.route("/get-bookings-user").get(getBookingsByUserId);

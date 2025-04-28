@@ -29,7 +29,7 @@ export const registerUser = async (req, res) => {
         await user.save();
 
         
-
+        const userId = user._id.toString();
         // generate the token
         const token = jwt.sign( { id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -50,7 +50,7 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOption);
 
-        return res.status(201).json({ success: true, message: "User Registerd Successfully",token})
+        return res.status(201).json({ success: true, message: "User Registerd Successfully",token,userId})
 
     } catch (error) {
         res.status(501).json({ success: false, message: error.message })
@@ -79,7 +79,7 @@ export const login = async (req, res) => {
         }
 
        
-
+        const userId = user._id.toString();
         // Generate JWT Token
         const token = jwt.sign(
             { id: user._id.toString() },
@@ -99,7 +99,8 @@ export const login = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "You are logged in.",
-            token
+            token,
+            userId
         });
 
     } catch (error) {
@@ -190,7 +191,6 @@ export const resetPassword = async (req, res) => {
         return res.json({ success: false, message: error.message });
     }
 };
-
 
 
 export const updateUserData = async (req, res) => {

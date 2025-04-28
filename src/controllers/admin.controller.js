@@ -1,8 +1,28 @@
-import User from "../models/User.js";
-import Mechanic from "../models/Mechanic.js";
-import Booking from "../models/Booking.js";
-import Rating from "../models/Rating.js";
+import {User} from "../models/user.model.js";
+import {Mechanic }from "../models/mech.model.js";
+import {Booking} from "../models/booking.model.js";
+import {Rating }from "../models/rating.model.js";
 
+// get Mechanic
+export const getMechanic = async (req,res) =>{
+    try {
+        const mechId = req.query.id;
+
+        if (!mechId) {
+            return res.status(404).json({ success: false, message: 'Mechanic ID is required' });
+        }
+
+        const mechanic = await Mechanic.findById(mechId);
+
+        if(!mechanic){
+            return res.status(400).json({success:false,message:"Mechanic not found"});
+        }
+        return res.status(200).json({success:true,message:"Mechanic found Successfully",mechanic})
+        
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
 //  Get all users
 export const getAllUsers = async (req, res) => {
     try {
@@ -10,6 +30,16 @@ export const getAllUsers = async (req, res) => {
         res.status(200).json({ success: true, users });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+//  Get all mechanics
+export const getAllMechanics = async (req, res) => {
+    try {
+        const mechanics = await Mechanic.find();
+        res.status(200).json({ success: true, mechanics });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message});
     }
 };
 
@@ -24,15 +54,7 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-//  Get all mechanics
-export const getAllMechanics = async (req, res) => {
-    try {
-        const mechanics = await Mechanic.find();
-        res.status(200).json({ success: true, mechanics });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
+
 
 //  Approve a mechanic
 export const approveMechanic = async (req, res) => {
@@ -109,3 +131,6 @@ export const deleteReview = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+
+

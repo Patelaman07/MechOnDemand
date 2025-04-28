@@ -7,6 +7,8 @@ const mechRouter = Router();
 
 mechRouter.route("/register").post(mechRegister);
 
+mechRouter.route("/login").post(login);
+
 mechRouter.route("/:id").post(
     upload.fields(
         [
@@ -19,7 +21,6 @@ mechRouter.route("/:id").post(
     updateMechanicData
 );
 
-mechRouter.route("/login").post(login);
 mechRouter.route("/logout").post(logout);
 
 mechRouter.route("/reset-otp").post(sendresetOtp);

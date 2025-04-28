@@ -38,11 +38,7 @@ const mechanicSchema = new Schema(
                 ref: "Rating" 
             }
         ],
-        userId: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "User", 
-            
-        },
+        
         skills: [
             { 
                 type: String,
@@ -50,12 +46,7 @@ const mechanicSchema = new Schema(
                 
             }
         ],
-        mechanicBookingHistory:[
-            {
-                type: Schema.Types.ObjectId,
-                ref:"Booking"
-            }
-        ],
+        
         experience: { 
             type: String, 
             default:'' 
