@@ -41,11 +41,6 @@ export const creatBooking = async (req, res) => {
 
         await user.save();
 
-        mechanic.mechanicBookingHistory = mechanicBookingHistory ||[];
-        
-        mechanic.mechanicBookingHistory.push(newBooking);
-        await mechanic.save();
-
         return res.status(201).json({
             success: true,
             message: "Booking is created successfully"

@@ -11,11 +11,11 @@ const bookingSchema = new Schema({
         ref:"Mechanic",
         required:true
     },
-    // serviceId:{
-    //     type:mongoose.Schema.Types.ObjectId,
-    //     ref:"Service",
-    //     required:true
-    // },
+    serviceId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Service",
+        
+    },
     category:{
         type:String,
         required:true
@@ -36,11 +36,9 @@ const bookingSchema = new Schema({
     },
     completedTime: { 
         type: Date,
-        
     },
     price: { 
         type: Number, 
-        required: true
     },
     paymentStatus: { 
         type: String, 
@@ -50,7 +48,7 @@ const bookingSchema = new Schema({
     paymentMethod: { 
         type: String, 
         enum: ["UPI", "Card", "Cash"], 
-        required: true 
+        
     }   
 },
 {
