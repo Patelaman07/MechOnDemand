@@ -1,34 +1,34 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 
 const userSchema = new Schema(
     {
-        fullName:{
-            type:String,
-            default:""
+        fullName: {
+            type: String,
+            default: ""
         },
-        name:{
-            type:String,
-            required:true,
-            index:true
+        name: {
+            type: String,
+            required: true,
+            index: true
         },
-        email:{
-            type:String,
-            required:true,
-            unique:true,
+        email: {
+            type: String,
+            required: true,
+            unique: true,
         },
-        password:{
-            type:String,
-            required:[true,'Password is required']
+        password: {
+            type: String,
+            required: [true, 'Password is required']
         },
-        phone:{
-            type:Number,
-            default:0,
-            unique:true
+        phone: {
+            type: Number,
+            default: 0,
+            unique: true
         },
-        role:{
-            type:String,
-            default:"user"
+        role: {
+            type: String,
+            default: "user"
         },
         address: [
             {
@@ -38,33 +38,44 @@ const userSchema = new Schema(
                 zip: String
             }
         ],
-        avatar:{
-            type:String,
-            default:""
-            
+        location: {
+            type: {
+                type: String,    // GeoJSON type
+                enum: ['Point'], // Sirf 'Point' allowed hai
+                
+            },
+            coordinates: {
+                type: [Number],  // Array of numbers [longitude, latitude]
+                
+            },
         },
-       
-        userBookingHistory:[
+        avatar: {
+            type: String,
+            default: ""
+
+        },
+
+        userBookingHistory: [
             {
                 type: Schema.Types.ObjectId,
-                ref:"Booking"
+                ref: "Booking"
             }
         ],
-        refreshToken:{
-            type:String
+        refreshToken: {
+            type: String
         },
-        otp:{
-            type:String,
-            default:""
+        otp: {
+            type: String,
+            default: ""
         },
-        otpExpireAt:{
-            type:Number,
-            default:0
+        otpExpireAt: {
+            type: Number,
+            default: 0
         }
-        
-    },{
-        timestamps:true
-    }
+
+    }, {
+    timestamps: true
+}
 )
 
-export const User = mongoose.model("User",userSchema)
+export const User = mongoose.model("User", userSchema)

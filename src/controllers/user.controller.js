@@ -79,7 +79,7 @@ export const login = async (req, res) => {
         }
 
        
-        const userId = user._id.toString();
+     
         // Generate JWT Token
         const token = jwt.sign(
             { id: user._id.toString() },
@@ -100,7 +100,7 @@ export const login = async (req, res) => {
             success: true,
             message: "You are logged in.",
             token,
-            userId
+          
         });
 
     } catch (error) {
@@ -277,3 +277,51 @@ export const getUserAddressArray = async(req,res)=>{
 
     
 }
+
+export const updateUserLocation = async (req, res) => {
+  try {
+    const { userId, latitude, longitude } = req.body;
+
+    // Validate inputs
+    if (!userId || typeof latitude === 'undefined' || typeof longitude === 'undefined') {
+      return res.status(400).json({
+        success: false,
+        message: "Missing userId, latitude, or longitude",
+      });
+    }
+
+    // Ensure latitude and longitude are valid numbers
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid latitude or longitude",
+      });
+    }
+
+    // Update the user location
+    await User.findByIdAndUpdate(userId, {
+      location: {
+        type: "Point",
+        coordinates: [lng, lat], // MongoDB expects [longitude, latitude]
+      },
+      updatedAt: new Date(),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User location updated",
+    });
+
+  } catch (err) {
+    console.error("Error updating user location:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+  

@@ -226,3 +226,23 @@ export const updateMechanicData = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const updateMechanicLocation = async (req, res) => {
+    
+    const { latitude, longitude,mechanicId } = req.body;
+
+    try {
+        await Mechanic.findByIdAndUpdate(mechanicId, {
+            location: {
+                type: "Point",
+                coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            },
+        });
+
+        res.status(200).json({ message: "Mechanic Location Updated" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error updating mechanic location" });
+    }
+};
+

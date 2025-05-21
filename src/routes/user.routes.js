@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserAddressArray, login, logout, registerUser, resetPassword, sendresetOtp, updateUserData } from "../controllers/user.controller.js";
+import { getUserAddressArray, login, logout, registerUser, resetPassword, sendresetOtp, updateUserData, updateUserLocation } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import userAuth from "../middlewares/userAuth.middleware.js";
 
@@ -30,5 +30,7 @@ userRouter.route("/update-user-data").post(
 );
 
 userRouter.route("/user-data").get(userAuth,getUserAddressArray);
+
+userRouter.route("/update-location").post(userAuth,updateUserLocation);
 
 export default userRouter;

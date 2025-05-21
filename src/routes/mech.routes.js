@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, logout, mechRegister, resetPassword, sendresetOtp,updateMechanicData } from "../controllers/mech.controller.js";
+import { login, logout, mechRegister, resetPassword, sendresetOtp,updateMechanicData, updateMechanicLocation } from "../controllers/mech.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 
@@ -24,7 +24,9 @@ mechRouter.route("/:id").post(
 mechRouter.route("/logout").post(logout);
 
 mechRouter.route("/reset-otp").post(sendresetOtp);
-mechRouter.route("/reset-password").post(resetPassword)
+mechRouter.route("/reset-password").post(resetPassword);
+
+mechRouter.route("/update-location").post(updateMechanicLocation)
 
 
 
